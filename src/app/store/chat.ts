@@ -1,6 +1,7 @@
 import { ChatMessage, Mask } from "./mask";
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware';
+import { getMaskPreset, getPresetContent } from "./presets";
 
 function uploadMessage(session: ChatSession, message: ChatMessage) {
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/session/message/add?sessionId=" + session.id,
@@ -81,10 +82,52 @@ export const useChatStore = create<ChatState>()(
           method: "post",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(session)
-        }).catch(e => {
-          console.error(e);
-          // showToast("Error:" + e)
         })
+
+          .then(() => {
+
+            let systemMessage: ChatMessage | undefined;
+
+            // session创建成功后，检查是否有预制词需要发送
+            if (mask) {
+              const presetId = getMaskPreset(mask.id);
+              if (presetId) {
+                const presetContent = getPresetContent(presetId);
+                if (presetContent) {
+                  // 创建预制词消息
+                  systemMessage = {
+                    id: Date.now().toString(),
+                    role: "system",
+                    content: presetContent,
+                    date: Date.now()
+                  };
+
+                  // 将预制词消息添加到session中
+                  get().addMessageToSession(session.id, systemMessage);
+
+                  // 上传预制词消息到后端
+                  uploadMessage(session, systemMessage);
+
+                }
+              }
+            }
+
+            // 关键步骤：重新从后端获取会话数据，确保数据一致性
+            setTimeout(() => {
+              get().fetchSessions();
+
+              if (systemMessage) {
+                setTimeout(() => {
+                  get().sendMessage(session.id, systemMessage!);
+                }, 100);
+              }
+            }, 100); // 给一点延迟确保后端处理完成
+
+          })
+          .catch(e => {
+            console.error(e);
+            // showToast("Error:" + e)
+          })
       },
 
       deleteSession: (sessionId: string) => {
