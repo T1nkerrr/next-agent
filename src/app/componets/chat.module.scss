@@ -1,17 +1,48 @@
 .chatContainer {
     display: flex;
     flex-direction: column;
-    height: 100vh;
+    height: 100%;
     padding: 20px;
     box-sizing: border-box;
+    position: relative; // 添加相对定位，作为 chatHeader 的定位上下文
+
+    .chatHeader {
+        // 添加顶部栏样式
+        position: absolute;
+        top: 25px;
+        left: 30px;
+        z-index: 10;
+
+        h2 {
+            margin: 0;
+            color: #333;
+            font-size: 2rem;
+            font-weight: 500;
+        }
+    }
 
     .messagesContainer {
         flex: 1;
         overflow-y: auto;
+        margin-top: 60px; // 为左上角标题留出空间
         margin-bottom: 20px;
+        // 隐藏滚动条
+        scrollbar-width: none;
+        /* Firefox */
+
+        -ms-overflow-style: none;
+        /* IE 10+ */
+
+        &::-webkit-scrollbar {
+            width: 0px;
+            background: transparent;
+            /* Chrome/Safari/Webkit */
+        }
 
         .message {
-            max-width: 80%;
+            // 让气泡根据内容自适应大小
+            width: fit-content;
+            min-width: 120px; // 设置最小宽度，避免内容过少时气泡太小
             padding: 10px 15px;
             margin-bottom: 15px;
             border-radius: 10px;
@@ -21,6 +52,8 @@
                 background-color: #f1f1f1;
                 margin-right: auto;
                 text-align: left;
+                // 限制AI消息的最大宽度，避免过宽
+                max-width: 80%;
             }
 
             &.userMessage {
@@ -28,6 +61,8 @@
                 color: white;
                 margin-left: auto;
                 text-align: right;
+                // 用户消息可以稍微宽一些
+                max-width: 70%;
             }
         }
     }
@@ -35,12 +70,42 @@
     .messageInput {
         display: flex;
         gap: 10px;
+        flex-shrink: 0; // 添加这行防止输入框被压缩
+        // 固定在content底部
+        position: sticky;
+        bottom: 0;
+        background-color: #f8f9fa;
+        padding: 10px 0;
+        margin-top: auto;
 
-        input {
+        textarea {
             flex: 1;
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            // 移除固定高度相关的属性
+            resize: none; // 保持不允许手动调整大小
+            height: 50px;
+            max-height: none;
+            // 隐藏滚动条但保留滚动功能
+            scrollbar-width: none;
+            /* Firefox */
+            -ms-overflow-style: none;
+            /* IE 10+ */
+            overflow-y: auto;
+            /* 保留滚动功能 */
+
+            // 针对WebKit浏览器隐藏滚动条
+            &::-webkit-scrollbar {
+                width: 0;
+                height: 0;
+                background: transparent;
+            }
+
+            font-family: inherit;
+            font-size: inherit;
+            // 增加行高以改善可读性
+            line-height: 1.5;
         }
 
         button {

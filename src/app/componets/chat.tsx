@@ -38,6 +38,13 @@ export function Chat() {
 
     return (
         <div className={styles.chatContainer}>
+            {/* 添加顶部栏显示当前聊天名称 */}
+            <div className={styles.chatHeader}>
+                <h2>{currentSession?.topic || "新聊天"}</h2>
+                {/* - 使用可选链操作符(?.)安全访问currentSession对象的topic属性
+                * - 使用逻辑或操作符(||)提供默认值"新聊天"
+                * - 通过花括号{ }在JSX中嵌入JavaScript表达式 */}
+            </div>
             {/* 显示当前session的消息 */}
             <div className={styles.messagesContainer}>
                 {currentSession?.messages && currentSession.messages.map((message) => (
@@ -57,8 +64,7 @@ export function Chat() {
             </div>
 
             <div className={styles.messageInput}>
-                <input
-                    type="text"
+                <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="输入消息..."

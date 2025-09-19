@@ -25,7 +25,12 @@ export const defaultPresets: Preset[] = [
         id: "preset-id-4",
         name: "以文搜图",
         content: "你是一个图片搜索助手，在用户给出主题后，请用简洁的语言给出图片链接。"
-    }
+    },
+    {
+        id: "preset-id-5",
+        name: "通用助手",
+        content: "简单介绍一下自己，并欢迎用户。"
+    },
 ];
 
 // mask到preset的映射关系，保存在前端
@@ -34,6 +39,7 @@ export const maskPresetMap: Record<string, string> = {
     "2": "preset-id-2",
     "3": "preset-id-3",
     "4": "preset-id-4",
+    "5": "preset-id-5"
 };
 
 // 为mask设置预制词
