@@ -1,6 +1,7 @@
 "use client"
 import { useChatStore, uploadMessage } from "../store/chat";
 import { useState } from "react";
+import styles from "./chat.module.scss"
 
 export function Chat() {
 
@@ -11,6 +12,7 @@ export function Chat() {
     const addMessageToSession = useChatStore(state => state.addMessageToSession);
     const sendMessage = useChatStore(state => state.sendMessage);
     const currentSession = sessions[currentSessionIndex];
+    const { isGenerating } = useChatStore();//添加ai是否在思考的状态标识
 
     const handleSend = () => {
         if (input.trim() === "") return;
@@ -35,24 +37,36 @@ export function Chat() {
 
 
     return (
-        <div>
+        <div className={styles.chatContainer}>
             {/* 显示当前session的消息 */}
-            <div>
+            <div className={styles.messagesContainer}>
                 {currentSession?.messages && currentSession.messages.map((message) => (
-                    <div key={message.id}>
+                    <div key={message.id}
+                        className={`${styles.message} ${message.role === 'user' ? styles.userMessage : styles.aiMessage}`}
+                    >
                         <strong>{message.role}:</strong> {message.content}
                     </div>
                 ))}
+
+                {/* AI 正在思考的提示 */}
+                {isGenerating && (
+                    <div className={`${styles.message} ${styles.aiMessage}`}>
+                        <strong>AI 正在思考中...</strong>
+                    </div>
+                )}
             </div>
-            <input
-                type="text"
-                value={input}
-                onChange={(e) => setInput(e.target.value)}
-                placeholder="输入消息..."
-            />
-            <button onClick={handleSend}>发送</button>
+
+            <div className={styles.messageInput}>
+                <input
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    placeholder="输入消息..."
+                />
+                <button onClick={handleSend}>发送</button>
+            </div>
         </div>
     )
 }
 //我要的是当点击session是检索出对应的message 然后显示，
-// 而不是事先存好，我要的是把它们存在zustand ，而不是从后端获取，实现基础功能即可
+// 而不是事先存好，我要的是把它们存在zustand ，而不是从后端获取，先实现基础功能即可

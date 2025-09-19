@@ -1,3 +1,20 @@
-.sidebar{
-    background-color: aliceblue;
+.container {
+  display: flex;
+  height: 100vh;
+  color: black;
+
+  .sidebar {
+    width: 350px;
+    flex-shrink: 0;
+    border-right: 2px solid #e0e0e0;
+    background-color: #bdd1e7;
+    padding: 16px;
+  }
+
+  .content {
+    flex: 1;
+    overflow: auto;
+    padding: 16px;
+    background-color: #f8f9fa;
+  }
 }

@@ -20,11 +20,10 @@ export interface ChatSession {
   id: string;
   topic: string;
   createTime: number;
-  updateTime: number;
+  lastUpdate: number;
   messages: ChatMessage[];
   mask: Mask;//记录属于哪个面具
 }
-
 
 
 export interface ChatState {
@@ -37,7 +36,9 @@ export interface ChatState {
   currentSession: () => ChatSession;// 当前选中的session
   addMessageToSession: (sessionId: string, message: ChatMessage) => void;
   sendMessage: (sessionId: string, message: ChatMessage) => void;
-  //chat(prompt: string): void;
+  // 添加ai是否在思考的状态标识
+  isGenerating: boolean;
+  setIsGenerating: (generating: boolean) => void;
 }
 
 export const useChatStore = create<ChatState>()(
@@ -46,6 +47,9 @@ export const useChatStore = create<ChatState>()(
       sessions: [],
       currentSessionIndex: 0, // 初始化 currentSessionIndex
 
+      // 添加ai的状态和设置方法
+      isGenerating: false,
+      setIsGenerating: (generating: boolean) => set({ isGenerating: generating }),
 
       fetchSessions: () => {
         fetch(process.env.NEXT_PUBLIC_API_URL + "/session/all")
@@ -64,7 +68,7 @@ export const useChatStore = create<ChatState>()(
           id: Date.now().toString(),
           topic: "New Chat",
           createTime: Date.now(),
-          updateTime: Date.now(),
+          lastUpdate: Date.now(),
           messages: [],
           mask: { id: "", name: "New Chat", context: [], avatar: "" }
         };
@@ -183,7 +187,7 @@ export const useChatStore = create<ChatState>()(
             sessions[sessionIndex] = {
               ...sessions[sessionIndex],
               messages: [...sessions[sessionIndex].messages, message],
-              updateTime: Date.now()
+              lastUpdate: Date.now()
             };
           }
           return { sessions };
@@ -200,6 +204,9 @@ export const useChatStore = create<ChatState>()(
           console.error("Session not found:", sessionId);
           return;
         }
+
+        // 设置一个ai正在思考的状态
+        get().setIsGenerating(true);
 
         const request = {
           model: "deepseek-chat",
@@ -223,6 +230,7 @@ export const useChatStore = create<ChatState>()(
         })
           .then(response => {//响应处理
             if (!response.ok) {
+              get().setIsGenerating(false); // 错误时重置状态
               //console.error(`HTTP Error: ${response.status} ${response.statusText}`);
               return response.text().then(text => {
                 //console.error("Error response body:", text);
@@ -247,15 +255,17 @@ export const useChatStore = create<ChatState>()(
 
               // 同时上传到后端服务器
               uploadMessage(session, aiMessage);
-
-
             }
+            // 完成后重置状态
+            get().setIsGenerating(false);
             //else {
             //console.warn("Unexpected API response format or empty response:", data);
             // }
           })
           .catch(e => {
             console.error("DeepSeek API error:", e);
+            // 错误时重置状态
+            get().setIsGenerating(false);
           });
       }
     }),
