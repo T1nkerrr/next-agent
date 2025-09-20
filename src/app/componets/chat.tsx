@@ -69,7 +69,12 @@ export function Chat() {
                     onChange={(e) => setInput(e.target.value)}
                     placeholder="输入消息..."
                 />
-                <button onClick={handleSend}>发送</button>
+                <button
+                    onClick={handleSend}
+                    disabled={isGenerating}
+                >
+                    {isGenerating ? '思考中...' : '发送'}
+                </button>
             </div>
         </div>
     )
