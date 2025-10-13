@@ -28,14 +28,14 @@ export function MaskPage() {
       newSession(mask);
       setTimeout(() => {
         fetchSessions();
-        setTimeout(() => {
-          const newIndex = useChatStore.getState().sessions.findIndex(s => s.mask.id === mask.id);
-          if (newIndex >= 0) {
-            selectSession(newIndex);
-            navigate("/chat");
-          }
-        }, 100);
       }, 100);
+      setTimeout(() => {
+        const newIndex = useChatStore.getState().sessions.findIndex(s => s.mask.id === mask.id);
+        if (newIndex >= 0) {
+          selectSession(newIndex);
+          navigate("/chat");
+        }
+      }, 300);// 增加到300ms给fetchSessions更多时间，防止创建聊天后，可能没有跳转到对应页面
     }
   };
 

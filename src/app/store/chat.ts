@@ -55,7 +55,12 @@ export const useChatStore = create<ChatState>()(
         fetch(process.env.NEXT_PUBLIC_API_URL + "/session/all")
           .then((res) => res.json())
           .then((serverSessions: ChatSession[]) => {
-            set({ sessions: serverSessions });
+            // 按创建时间倒序排列（最新的在前面）
+            const sortedSessions = serverSessions.sort((a, b) =>
+              (b.createTime || 0) - (a.createTime || 0)
+            );
+            set({ sessions: sortedSessions });
+            //set({ sessions: serverSessions });
           })
           .catch(e => {
             console.error(e);
@@ -145,6 +150,9 @@ export const useChatStore = create<ChatState>()(
             set(() => ({
               sessions,
             }));
+
+            //添加执行删除后跳转到home页面的方法
+            window.location.hash = "#/home";
           }
         }).catch(e => {
           console.error(e);

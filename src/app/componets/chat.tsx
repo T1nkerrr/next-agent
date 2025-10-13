@@ -1,8 +1,7 @@
 "use client"
 import { useChatStore, uploadMessage } from "../store/chat";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import styles from "./chat.module.scss"
-
 export function Chat() {
 
     const [input, setInput] = useState("");
@@ -13,6 +12,14 @@ export function Chat() {
     const sendMessage = useChatStore(state => state.sendMessage);
     const currentSession = sessions[currentSessionIndex];
     const { isGenerating } = useChatStore();//添加ai是否在思考的状态标识
+
+    useEffect(() => {
+        // 只需要检查会话列表是否为空，如果为空，则跳转到 home 页面
+        if (sessions.length === 0) {
+            // 使用 react-router-dom 的方式跳转
+            window.location.hash = "#/home";
+        }
+    }, [sessions]);
 
     const handleSend = () => {
         if (input.trim() === "") return;
@@ -35,6 +42,22 @@ export function Chat() {
         setInput("");
     };
 
+    // 用户可以在输入框按下回车键时发送消息
+    const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+        // 检查是否按下了 Enter 键且没有按住 Shift 键
+        if (e.key === 'Enter' && !e.shiftKey) {
+            // 阻止默认行为（避免在 textarea 中添加新行）
+            e.preventDefault();
+            // 调用发送消息函数
+            handleSend();
+        }
+    };
+
+    //如果chatlist为空，则显示正在跳转的提示
+    const hasValidSession = sessions.length > 0;
+    if (!hasValidSession) {
+        return <div>正在跳转...</div>;
+    }
 
     return (
         <div className={styles.chatContainer}>
@@ -67,6 +90,7 @@ export function Chat() {
                 <textarea
                     value={input}
                     onChange={(e) => setInput(e.target.value)}
+                    onKeyDown={handleKeyDown} // 添加键盘事件处理程序：按下回车键可以发送消息
                     placeholder="输入消息..."
                 />
                 <button
