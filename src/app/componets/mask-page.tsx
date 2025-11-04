@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useChatStore } from "../store/chat";
 import { useNavigate } from "react-router-dom";
 import styles from "./mask-page.module.scss";
+import { defaultMaskTemplates } from "../store/presets";
 export function MaskPage() {
   const { masks, fetchMasks } = useMaskStore();
   const { newSession, fetchSessions, sessions, selectSession } = useChatStore();
@@ -41,26 +42,24 @@ export function MaskPage() {
 
   return (
     <div className={styles.maskPage}>
-      <h1 className={styles.header}>Mask Page</h1>
+      <h1 className={styles.header}>选择一个角色新建对话</h1>
       <div className={styles.maskList}>
-        {masks.map((mask) => (
-          <div key={mask.id}
-            className={styles.maskItem}
-            onClick={() => {
-              handleMaskClick(mask)
-            }}>
-            <h2 className={styles.maskName}>{mask.name}</h2>
-            <p>Avatar: {mask.avatar}</p>
-            <div>
-              Context:
-              {mask.context.map((message, index) => (
-                <div key={index}>
-                  {message.role}: {message.content}
-                </div>
-              ))}
+        {defaultMaskTemplates.map((template, index) => {
+          const maskId = (index + 1).toString();
+          // 查找对应的 mask 对象
+          const mask = masks.find(m => m.id === maskId);
+
+          return (
+            <div
+              key={maskId}
+              className={styles.maskItem}
+              onClick={() => mask && handleMaskClick(mask)}
+            >
+              <div className={styles.avatar}>{template.avatar}</div>
+              <h2 className={styles.maskName}>{template.name}</h2>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

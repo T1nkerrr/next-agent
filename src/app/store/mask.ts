@@ -22,9 +22,9 @@ interface MaskStore {
 
 export const useMaskStore = create<MaskStore>()(
   persist(
-    (set,get) => ({
+    (set, get) => ({
       masks: [],
-      
+
       fetchMasks: () => {
 
         //if (get().masks.length > 0) return;

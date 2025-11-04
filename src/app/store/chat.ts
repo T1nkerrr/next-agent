@@ -1,7 +1,7 @@
 import { ChatMessage, Mask } from "./mask";
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware';
-import { getMaskPreset, getPresetContent } from "./presets";
+import { getMaskTemplate } from "./presets";
 
 function uploadMessage(session: ChatSession, message: ChatMessage) {
   return fetch(process.env.NEXT_PUBLIC_API_URL + "/session/message/add?sessionId=" + session.id,
@@ -95,43 +95,41 @@ export const useChatStore = create<ChatState>()(
 
           .then(() => {
 
-            let systemMessage: ChatMessage | undefined;
-
-            // session创建成功后，检查是否有预制词需要发送
+            // session创建成功后，检查是否有context需要发送
             if (mask) {
-              const presetId = getMaskPreset(mask.id);
-              if (presetId) {
-                const presetContent = getPresetContent(presetId);
-                if (presetContent) {
-                  // 创建预制词消息
-                  systemMessage = {
+              // 从 presets 中获取 context，而不是使用 mask 自带的 context
+              const templateMask = getMaskTemplate(mask.id);
+              if (templateMask && templateMask.context && templateMask.context.length > 0) {
+                // 使用模板中的 context
+                templateMask.context.forEach(contextMessage => {
+                  const message: ChatMessage = {
                     id: Date.now().toString(),
-                    role: "system",
-                    content: presetContent,
+                    role: contextMessage.role,
+                    content: contextMessage.content,
                     date: Date.now()
                   };
-
                   // 将预制词消息添加到session中
-                  get().addMessageToSession(session.id, systemMessage);
+                  get().addMessageToSession(session.id, message);
 
                   // 上传预制词消息到后端
-                  uploadMessage(session, systemMessage);
-
-                }
+                  uploadMessage(session, message);
+                });
+                // 关键：发送最后一条 context 消息给 AI，触发回复
+                const lastContextMessage = templateMask.context[templateMask.context.length - 1];
+                setTimeout(() => {
+                  get().sendMessage(session.id, {
+                    id: Date.now().toString(),
+                    role: lastContextMessage.role,
+                    content: lastContextMessage.content,
+                    date: Date.now()
+                  });
+                }, 100);
               }
             }
-
             // 关键步骤：重新从后端获取会话数据，确保数据一致性
             setTimeout(() => {
               get().fetchSessions();
-
-              if (systemMessage) {
-                setTimeout(() => {
-                  get().sendMessage(session.id, systemMessage!);
-                }, 100);
-              }
             }, 100); // 给一点延迟确保后端处理完成
-
           })
           .catch(e => {
             console.error(e);
@@ -217,7 +215,8 @@ export const useChatStore = create<ChatState>()(
         get().setIsGenerating(true);
 
         const request = {
-          model: "deepseek-chat",
+          model: "deepseek-chat",//非思考模式
+          //model:"deepseek-reasoner",//思考模式
           messages: session.messages.map(msg => ({
             role: msg.role,
             content: msg.content

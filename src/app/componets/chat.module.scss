@@ -44,7 +44,7 @@
             width: fit-content;
             min-width: 120px; // 设置最小宽度，避免内容过少时气泡太小
             padding: 10px 15px;
-            margin-bottom: 15px;
+            margin-bottom: 25px;
             border-radius: 10px;
             word-wrap: break-word;
 
@@ -63,6 +63,25 @@
                 text-align: right;
                 // 用户消息可以稍微宽一些
                 max-width: 70%;
+
+                .messageDate {
+                    font-size: 0.75rem;
+                    color: #999;
+                    width: fit-content;
+                    margin-top: -20px; // 向上移动靠近消息
+                    margin-bottom: 25px; // 与下一条消息保持间距
+
+                    // 分别设置用户和AI消息时间的位置
+                    &:global(.aiMessage + &) {
+                        margin-left: 15px; // AI消息时间靠左显示
+                        text-align: left;
+                    }
+
+                    &:global(.userMessage + &) {
+                        margin-right: 15px; // 用户消息时间靠右显示
+                        text-align: right;
+                    }
+                }
             }
         }
     }
@@ -118,7 +137,7 @@
 
             // 添加hover效果，颜色稍微变深
             &:hover:not(:disabled) {
-                background-color: #0056b3; 
+                background-color: #0056b3;
             }
 
             &:disabled {
