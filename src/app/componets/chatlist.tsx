@@ -28,6 +28,7 @@ export function ChatList() {
             (session.createTime.toString().length === 10 ? 1000 : 1)).toLocaleString() : 'N/A'}</p>
           <p>Updated: {session.lastUpdate ? new Date(parseInt(session.lastUpdate.toString()) *
             (session.lastUpdate.toString().length === 10 ? 1000 : 1)).toLocaleString() : 'N/A'}</p>
+             {/* 把字符串转化成时间格式 */}
           <p>Topic: {session.topic}</p>
           <p>Mask: {session.mask.id}</p>
           <button

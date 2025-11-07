@@ -71,14 +71,16 @@ export function Chat() {
             {/* 显示当前session的消息 */}
             <div className={styles.messagesContainer}>
                 {currentSession?.messages && currentSession.messages.map((message) => (
-                    <div key={message.id}>
+                    <div key={message.id} className={styles.messageGroup}>
                         <div
                             className={`${styles.message} ${message.role === 'user' ? styles.userMessage : styles.aiMessage}`}
                         >
                             <strong>{message.role}:</strong> {message.content}
                         </div>
                         <div className={`${styles.messageDate} ${message.role === 'user' ? styles.userMessage : styles.aiMessage}`}>
-                            {new Date(message.date).toLocaleString()}
+                            {message.date ? new Date(parseInt(message.date.toString()) *
+                                (message.date.toString().length === 10 ? 1000 : 1)).toLocaleString() : 'N/A'}
+                                 {/* 把字符串转化成时间格式 */}
                         </div>
                     </div>
                 ))}

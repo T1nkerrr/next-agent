@@ -4,7 +4,6 @@ import { useEffect } from "react";
 import { useChatStore } from "../store/chat";
 import { useNavigate } from "react-router-dom";
 import styles from "./mask-page.module.scss";
-import { defaultMaskTemplates } from "../store/presets";
 export function MaskPage() {
   const { masks, fetchMasks } = useMaskStore();
   const { newSession, fetchSessions, sessions, selectSession } = useChatStore();
@@ -13,6 +12,22 @@ export function MaskPage() {
   useEffect(() => {
     fetchMasks();
   }, []);
+
+  // 将统一码字符串（如 "1f916"）转换为真实 emoji
+  function unifiedToEmoji(unified: string): string {
+    try {
+      // 处理可能的连字符分隔格式（如 "1f916" 或 "1f468-200d-1f469-200d-1f467"）
+      const codePoints = unified.split('-').map(hex =>
+        parseInt(hex, 16)
+      );
+
+      // 使用 fromCodePoint 将码点转换为实际字符
+      return String.fromCodePoint(...codePoints);
+    } catch (e) {
+      console.error("Emoji 转换失败:", unified, e);
+      return "❓"; // 转换失败时显示问号 emoji
+    }
+  }
 
   const handleMaskClick = (mask: any) => {
     // 查找是否已存在该mask的session
@@ -44,22 +59,18 @@ export function MaskPage() {
     <div className={styles.maskPage}>
       <h1 className={styles.header}>选择一个角色新建对话</h1>
       <div className={styles.maskList}>
-        {defaultMaskTemplates.map((template, index) => {
-          const maskId = (index + 1).toString();
-          // 查找对应的 mask 对象
-          const mask = masks.find(m => m.id === maskId);
-
-          return (
-            <div
-              key={maskId}
-              className={styles.maskItem}
-              onClick={() => mask && handleMaskClick(mask)}
-            >
-              <div className={styles.avatar}>{template.avatar}</div>
-              <h2 className={styles.maskName}>{template.name}</h2>
+        {masks.map((mask) => (
+          <div
+            key={mask.id}
+            className={styles.maskItem}
+            onClick={() => handleMaskClick(mask)}
+          >
+            <div className={styles.avatar}>
+              {mask.avatar && unifiedToEmoji(mask.avatar)}
             </div>
-          );
-        })}
+            <h2 className={styles.maskName}>{mask.name}</h2>
+          </div>
+        ))}
       </div>
     </div>
   );

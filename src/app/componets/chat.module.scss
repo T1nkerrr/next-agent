@@ -39,48 +39,51 @@
             /* Chrome/Safari/Webkit */
         }
 
-        .message {
-            // 让气泡根据内容自适应大小
-            width: fit-content;
-            min-width: 120px; // 设置最小宽度，避免内容过少时气泡太小
-            padding: 10px 15px;
-            margin-bottom: 25px;
-            border-radius: 10px;
-            word-wrap: break-word;
+        .messageGroup {
+            margin-bottom: 25px; // 整个消息组的间距
 
-            &.aiMessage {
-                background-color: #f1f1f1;
-                margin-right: auto;
-                text-align: left;
-                // 限制AI消息的最大宽度，避免过宽
-                max-width: 80%;
+            .message {
+                // 让气泡根据内容自适应大小
+                width: fit-content;
+                min-width: 120px; // 设置最小宽度，避免内容过少时气泡太小
+                padding: 10px 15px;
+                margin-bottom: 5px; // 消息气泡与时间的间距
+                border-radius: 10px;
+                word-wrap: break-word;
+
+                &.aiMessage {
+                    background-color: #f1f1f1;
+                    margin-right: auto;
+                    text-align: left;
+                    // 限制AI消息的最大宽度，避免过宽
+                    max-width: 80%;
+                }
+
+                &.userMessage {
+                    background-color: #007bff;
+                    color: white;
+                    margin-left: auto;
+                    text-align: right;
+                    // 用户消息可以稍微宽一些
+                    max-width: 70%;
+                }
             }
 
-            &.userMessage {
-                background-color: #007bff;
-                color: white;
-                margin-left: auto;
-                text-align: right;
-                // 用户消息可以稍微宽一些
-                max-width: 70%;
+            // 消息时间样式
+            .messageDate {
+                font-size: 0.75rem;
+                color: #999;
+                width: fit-content;
 
-                .messageDate {
-                    font-size: 0.75rem;
-                    color: #999;
-                    width: fit-content;
-                    margin-top: -20px; // 向上移动靠近消息
-                    margin-bottom: 25px; // 与下一条消息保持间距
+                &.aiMessage {
+                    margin-left: 15px;
+                    text-align: left;
+                }
 
-                    // 分别设置用户和AI消息时间的位置
-                    &:global(.aiMessage + &) {
-                        margin-left: 15px; // AI消息时间靠左显示
-                        text-align: left;
-                    }
-
-                    &:global(.userMessage + &) {
-                        margin-right: 15px; // 用户消息时间靠右显示
-                        text-align: right;
-                    }
+                &.userMessage {
+                    margin-right: 15px;
+                    text-align: right;
+                    margin-left: auto;
                 }
             }
         }
